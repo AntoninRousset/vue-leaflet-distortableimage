@@ -16,6 +16,10 @@ export const props = {
     type: [Array],
     required: true,
   },
+  editable: {
+    type: Boolean,
+    default: true,
+  },
   opacity: {
     type: Number,
     custom: true,
@@ -263,7 +267,7 @@ export function initDistortableImage(L) {
       } else {
         // If the translation for a word is not specified, fallback to English.
         for (var key in translation) {
-          if (!this.options.translation.hasOwnProperty(key)) {
+          if (Object.prototype.hasOwnProperty.call(!this.options.translation, key)) {
             this.options.translation[key] = translation[key];
           }
         }
@@ -397,7 +401,6 @@ export function initDistortableImage(L) {
         }
 
         /** if there is a featureGroup, only its editable option matters */
-          /*
         var eventParents = this._eventParents;
         if (eventParents) {
           this.eP = eventParents[Object.keys(eventParents)[0]];
@@ -410,7 +413,6 @@ export function initDistortableImage(L) {
           }
           this.eP = null;
         }
-        */
       });
 
       L.DomEvent.on(this.getElement(), "click", this.select, this);
