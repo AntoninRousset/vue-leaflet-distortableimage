@@ -1,1 +1,1 @@
-export { default as LDistordableImageOverlay } from "./LDistordableImageOverlay.vue";
+export { default as LDistortableImageOverlay } from "./LDistortableImageOverlay.vue";

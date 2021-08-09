@@ -5,17 +5,17 @@ export default {
   input: "./src/lib.js",
   output: [
     {
-      file: "dist/vue-leaflet-distordableimage.esm.js",
+      file: "dist/vue-leaflet-distortableimage.esm.js",
       format: "es",
       sourcemap: true,
     },
     {
-      file: "dist/vue-leaflet-distordableimage.cjs.js",
+      file: "dist/vue-leaflet-distortableimage.cjs.js",
       format: "cjs",
       sourcemap: true,
     },
     {
-      file: "dist/vue-leaflet-distordableimage.umd.js",
+      file: "dist/vue-leaflet-distortableimage.umd.js",
       format: "umd",
       name: "vue-leaflet",
       sourcemap: true,

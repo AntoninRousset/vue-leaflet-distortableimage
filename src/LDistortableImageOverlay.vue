@@ -7,17 +7,17 @@ import {
   GLOBAL_LEAFLET_OPT,
 } from "@vue-leaflet/vue-leaflet/src/utils.js";
 import {
-  initDistordableImage,
+  initDistortableImage,
   props as imageOverlayProps,
   setup as imageOverlaySetup,
-} from "./distordableImageOverlay.js";
+} from "./distortableImageOverlay.js";
 import { render } from "@vue-leaflet/vue-leaflet/src/functions/layer";
 
 /**
  * ImageOverlay component, render a plain image instead of a geospatial map.
  */
 export default {
-  name: "LDistordableImageOverlay",
+  name: "LDistortableImageOverlay",
   props: imageOverlayProps,
   setup(props, context) {
     const leafletRef = ref({});
@@ -32,7 +32,7 @@ export default {
       let L = useGlobalLeaflet
         ? WINDOW_OR_GLOBAL.L
         : await import("leaflet/dist/leaflet-src.esm");
-      const distortableImageOverlay = initDistordableImage(L);
+      const distortableImageOverlay = initDistortableImage(L);
       const { DomEvent } = L;
       leafletRef.value = distortableImageOverlay(props.url, options);
 

@@ -122,7 +122,7 @@ export const setup = (setupProps, LeafletRef, context) => {
 };
 
 // Copied from https://github.com/publiclab/Leaflet.DistortableImage/
-export function initDistordableImage(L) {
+export function initDistortableImage(L) {
   const TrigUtil = {
 
     calcAngle(x, y, unit = 'deg') {

@@ -7,7 +7,7 @@
   "sideEffects": false,
   "main": "dist/vue-leaflet-distortableimage.cjs.js",
   "unpkg": "dist/vue-leaflet-distortableimage.umd.js",
-  "module": "dist/vue-leaflet-distordableimage.esm.js",
+  "module": "dist/vue-leaflet-distortableimage.esm.js",
   "files": [
     "dist/",
     "src/"
