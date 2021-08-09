@@ -16,15 +16,6 @@ export const props = {
     type: [Array],
     required: true,
   },
-  editable: {
-    type: Boolean,
-    default: true,
-  },
-  opacity: {
-    type: Number,
-    custom: true,
-    default: 1.0,
-  },
   alt: {
     type: String,
     default: "",
@@ -67,13 +58,6 @@ export const setup = (setupProps, LeafletRef, context) => {
   const methods = {
     ...layerMethods,
     /**
-     * Sets the opacity of the overlay.
-     * @param {number} opacity
-     */
-    setOpacity(opacity) {
-      return LeafletRef.value.setOpacity(opacity);
-    },
-    /**
      * Changes the URL of the image.
      * @param {string} url
      */
@@ -84,15 +68,15 @@ export const setup = (setupProps, LeafletRef, context) => {
      * Update the bounds that this ImageOverlay covers
      * @param {LatLngBounds | Array<Array<number>>} bounds
      */
-    setBounds(bounds) {
-      return LeafletRef.value.setBounds(bounds);
+    setCorners(corners) {
+      return LeafletRef.value.setCorners(corners);
     },
     /**
      * Get the bounds that this ImageOverlay covers
      * @returns {LatLngBounds}
      */
-    getBounds() {
-      return LeafletRef.value.getBounds();
+    getCorners() {
+      return LeafletRef.value.getCorners();
     },
     /**
      * Returns the instance of HTMLImageElement used by this overlay.
@@ -100,18 +84,6 @@ export const setup = (setupProps, LeafletRef, context) => {
      */
     getElement() {
       return LeafletRef.value.getElement();
-    },
-    /**
-     * Brings the layer to the top of all overlays.
-     */
-    bringToFront() {
-      return LeafletRef.value.bringToFront();
-    },
-    /**
-     * Brings the layer to the bottom of all overlays.
-     */
-    bringToBack() {
-      return LeafletRef.value.bringToBack();
     },
     /**
      * Changes the zIndex of the image overlay.
@@ -349,9 +321,7 @@ export function initDistortableImage(L) {
       crossOrigin: true,
       // todo: find ideal number to prevent distortions during RotateScale, and make it dynamic (remove hardcoding)
       edgeMinWidth: 50,
-      editable: true,
       mode: "distort",
-      selected: false,
     },
 
     initialize: function (url, options) {
@@ -359,8 +329,6 @@ export function initDistortableImage(L) {
       Utils.initTranslation.call(this, L);
 
       this.edgeMinWidth = this.options.edgeMinWidth;
-      this.editable = this.options.editable;
-      this._selected = this.options.selected;
       this._url = url;
       this.rotation = {};
     },
@@ -399,62 +367,12 @@ export function initDistortableImage(L) {
             map.on("zoomanim", this._animateZoom, this);
           }
         }
-
-        /** if there is a featureGroup, only its editable option matters */
-	/*
-        var eventParents = this._eventParents;
-        if (eventParents) {
-          this.eP = eventParents[Object.keys(eventParents)[0]];
-          if (this.eP.editable) {
-            this.editing.enable();
-          }
-        } else {
-          if (this.editable) {
-            this.editing.enable();
-          }
-          this.eP = null;
-        }
-	*/
       });
-
-      L.DomEvent.on(this.getElement(), "click", this.select, this);
-      L.DomEvent.on(
-        map,
-        {
-          singleclickon: this._singleClickListeners,
-          singleclickoff: this._resetClickListeners,
-          singleclick: this._singleClick,
-        },
-        this
-      );
-
-      /**
-       * custom events fired from DoubleClickLabels.js. Used to differentiate
-       * single / dblclick to not deselect images on map dblclick.
-       */
-      if (!(map.doubleClickZoom.enabled() || map.doubleClickLabels.enabled())) {
-        L.DomEvent.on(map, "click", this.deselect, this);
-      }
 
       this.fire("add");
     },
 
     onRemove: function (map) {
-      L.DomEvent.off(this.getElement(), "click", this.select, this);
-      L.DomEvent.off(
-        map,
-        {
-          singleclickon: this._singleClickListeners,
-          singleclickoff: this._resetClickListeners,
-          singleclick: this._singleClick,
-        },
-        this
-      );
-      L.DomEvent.off(map, "click", this.deselect, this);
-
-      if (this.editing) {
-        this.editing.disable();
-      }
       this.fire("remove");
 
       L.ImageOverlay.prototype.onRemove.call(this, map);
@@ -490,72 +408,6 @@ export function initDistortableImage(L) {
       this.setBounds(L.latLngBounds(this.getCorners()));
     },
 
-    _singleClick: function (e) {
-      if (e.type === "singleclick") {
-        this.deselect();
-      } else {
-        return;
-      }
-    },
-
-    _singleClickListeners: function () {
-      var map = this._map;
-      L.DomEvent.off(map, "click", this.deselect, this);
-      L.DomEvent.on(map, "singleclick", this.deselect, this);
-    },
-
-    _resetClickListeners: function () {
-      var map = this._map;
-      L.DomEvent.on(map, "click", this.deselect, this);
-      L.DomEvent.off(map, "singleclick", this.deselect, this);
-    },
-
-    isSelected: function () {
-      return this._selected;
-    },
-
-    deselect: function () {
-      var edit = this.editing;
-      if (!edit.enabled()) {
-        return;
-      }
-
-      edit._removeToolbar();
-      edit._hideMarkers();
-
-      this._selected = false;
-      this.fire("deselect");
-      return this;
-    },
-
-    select: function (e) {
-      var edit = this.editing;
-      var eP = this.eP;
-
-      if (!edit.enabled()) {
-        return;
-      }
-      if (e) {
-        L.DomEvent.stopPropagation(e);
-      }
-
-      // this ensures deselection of all other images, allowing us to keep collection group optional
-      this._programmaticGrouping();
-
-      this._selected = true;
-      edit._addToolbar();
-      edit._showMarkers();
-      this.fire("select");
-
-      // we run the selection logic 1st anyway because the collection group's _addToolbar method depends on it
-      if (eP && eP.anyCollected()) {
-        this.deselect();
-        return;
-      }
-
-      return this;
-    },
-
     _programmaticGrouping: function () {
       this._map.eachLayer((layer) => {
         if (layer instanceof DistortableImageOverlay) {
@@ -565,18 +417,11 @@ export function initDistortableImage(L) {
     },
 
     setCorner: function (corner, latlng) {
-      var edit = this.editing;
 
       this._corners[corner] = latlng;
 
       this.setBounds(L.latLngBounds(this.getCorners()));
       this.fire("update");
-
-      if (edit.toolbar && edit.toolbar instanceof L.DistortableImage.PopupBar) {
-        edit._updateToolbarPos();
-      }
-
-      this.edited = true;
 
       return this;
     },
@@ -597,7 +442,6 @@ export function initDistortableImage(L) {
     setCorners: function (latlngObj) {
       var map = this._map;
       var zoom = map.getZoom();
-      var edit = this.editing;
       var i = 0;
 
       // this is to fix https://github.com/publiclab/Leaflet.DistortableImage/issues/402
@@ -618,19 +462,12 @@ export function initDistortableImage(L) {
       this.setBounds(L.latLngBounds(this.getCorners()));
       this.fire("update");
 
-      if (edit.toolbar && edit.toolbar instanceof L.DistortableImage.PopupBar) {
-        edit._updateToolbarPos();
-      }
-
-      this.edited = true;
-
       return this;
     },
 
     setCornersFromPoints: function (pointsObj) {
       var map = this._map;
       var zoom = map.getZoom();
-      var edit = this.editing;
       var i = 0;
 
       for (var k in pointsObj) {
@@ -651,12 +488,6 @@ export function initDistortableImage(L) {
 
       this.setBounds(L.latLngBounds(this.getCorners()));
       this.fire("update");
-
-      if (edit.toolbar && edit.toolbar instanceof L.DistortableImage.PopupBar) {
-        edit._updateToolbarPos();
-      }
-
-      this.edited = true;
 
       return this;
     },
@@ -781,7 +612,6 @@ export function initDistortableImage(L) {
         }
       }
 
-      this.edited = false;
       this.fire("restore");
 
       return this;
