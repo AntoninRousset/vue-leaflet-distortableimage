@@ -23,7 +23,8 @@
   },
   "peerDependencies": {
     "@vue-leaflet/vue-leaflet": "^0.6.1",
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "proj4": "^2.7.5"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
