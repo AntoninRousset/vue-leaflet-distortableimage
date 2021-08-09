@@ -401,6 +401,7 @@ export function initDistortableImage(L) {
         }
 
         /** if there is a featureGroup, only its editable option matters */
+	/*
         var eventParents = this._eventParents;
         if (eventParents) {
           this.eP = eventParents[Object.keys(eventParents)[0]];
@@ -413,6 +414,7 @@ export function initDistortableImage(L) {
           }
           this.eP = null;
         }
+	*/
       });
 
       L.DomEvent.on(this.getElement(), "click", this.select, this);
