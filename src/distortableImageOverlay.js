@@ -518,10 +518,10 @@ export function initDistortableImage(L) {
     },
 
     getAngle: function (unit = "deg") {
-      var matrix = this.getElement()
+      var tmp= this.getElement()
         .style[L.DomUtil.TRANSFORM].split("matrix3d")[1]
-        .slice(1, -1)
-        .split(",");
+      if (!tmp) return 0 // quick fix of tmp being undefined
+      var matrix = tmp.slice(1, -1).split(",");
 
       var row0x = matrix[0];
       var row0y = matrix[1];
